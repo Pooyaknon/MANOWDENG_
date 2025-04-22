@@ -15,7 +15,7 @@ public class HomeUI extends JFrame {
 
     public HomeUI() {
         setTitle("MANOWDENG - Home");
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // เต็มจอ
+        setMinimumSize(new Dimension(600, 400)); // ตั้งขนาดขั้นต่ำให้เท่ากับ ModeSelectUI
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         try {
