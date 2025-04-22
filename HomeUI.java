@@ -1,58 +1,101 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class HomeUI extends JFrame {
 
     private JTextField nameField;
     private JButton startButton;
-    public static String playerName = ""; // เก็บชื่อผู้เล่นไว้ใช้ข้ามไฟล์
+    public static String playerName = "";
+    private BufferedImage backgroundImage;
+    private Font pixelFont;
 
     public HomeUI() {
         setTitle("MANOWDENG - Home");
-        setSize(400, 300);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // เต็มจอ
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // จัดให้อยู่กลางจอ
 
-        // ตั้ง layout
-        setLayout(new BorderLayout());
+        try {
+            backgroundImage = ImageIO.read(new File("brick_background.png"));
+            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("Jersey10-Regular.ttf")).deriveFont(60f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // ส่วนบน - ชื่อเกม
-        JLabel titleLabel = new JLabel("MANOWDENG", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        add(titleLabel, BorderLayout.NORTH);
+        BackgroundPanel mainPanel = new BackgroundPanel();
+        mainPanel.setLayout(new GridBagLayout()); // Layout ที่ยืดหยุ่น
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.gridx = 0;
 
-        // ส่วนกลาง - ช่องกรอกชื่อ
-        JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        nameField = new JTextField();
+        // Title
+        JLabel titleLabel = new JLabel("MANOWDENG");
+        titleLabel.setFont(pixelFont.deriveFont(72f));
+        titleLabel.setForeground(Color.GREEN);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridy = 0;
+        mainPanel.add(titleLabel, gbc);
+
+        // Label "Enter your name"
+        JLabel nameLabel = new JLabel("Enter your name");
+        nameLabel.setFont(pixelFont.deriveFont(24f));
+        nameLabel.setForeground(Color.WHITE);
+        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridy = 1;
+        mainPanel.add(nameLabel, gbc);
+
+        // Name Input
+        nameField = new JTextField(20);
+        nameField.setFont(new Font("Arial", Font.PLAIN, 20));
         nameField.setHorizontalAlignment(JTextField.CENTER);
-        centerPanel.add(new JLabel("Enter your name:", SwingConstants.CENTER));
-        centerPanel.add(nameField);
-        add(centerPanel, BorderLayout.CENTER);
+        gbc.gridy = 2;
+        mainPanel.add(nameField, gbc);
 
-        // ส่วนล่าง - ปุ่ม START
+        // START Button
         startButton = new JButton("START");
-        startButton.setEnabled(false); // ยังไม่ให้กดจนกว่าจะกรอกชื่อ
-        add(startButton, BorderLayout.SOUTH);
+        startButton.setFont(pixelFont.deriveFont(30f));
+        startButton.setBackground(Color.RED);
+        startButton.setForeground(Color.WHITE);
+        startButton.setFocusPainted(false);
+        startButton.setEnabled(false);
+        startButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
+        gbc.gridy = 3;
+        mainPanel.add(startButton, gbc);
 
-        // ตรวจจับการพิมพ์ชื่อ
+        // ฟังชันตรวจพิมพ์ชื่อ
         nameField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 startButton.setEnabled(!nameField.getText().trim().isEmpty());
             }
         });
 
-        // เมื่อกดปุ่ม START
+        // ปุ่ม START
         startButton.addActionListener(e -> {
             playerName = nameField.getText().trim();
-            dispose(); // ปิดหน้านี้
-            new ModeSelectUI(); // ไปหน้าเลือกโหมด
+            dispose();
+            new ModeSelectUI();
         });
 
+        setContentPane(mainPanel);
         setVisible(true);
     }
 
-    // สำหรับทดสอบ run
+    // Panel พื้นหลังแบบ Resizable
+    class BackgroundPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         new HomeUI();
     }
