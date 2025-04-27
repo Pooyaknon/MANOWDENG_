@@ -2,5 +2,4 @@
 
 run only HomeUI and VoiceServer.java
 
-
-test kreem
+ลบไฟล์   del /s *.class
