@@ -70,8 +70,13 @@ public class A_HomeUI extends JFrame {
         gbc.gridy = 2;
         mainPanel.add(nameField, gbc);
 
+        if (!playerName.isEmpty()) {
+            nameField.setText(playerName); // ใส่ชื่อเก่ากลับไปเลย
+        }
+
         startButton = new JButton("START");
         styleButton(startButton, 30f, new Color(200, 50, 50));
+        startButton.setEnabled(!playerName.isEmpty());
         gbc.gridy = 3;
         mainPanel.add(startButton, gbc);
 
@@ -100,7 +105,10 @@ public class A_HomeUI extends JFrame {
     private void setupEventListeners() {
         nameField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                startButton.setEnabled(!nameField.getText().trim().isEmpty());
+                if (playerName.isEmpty()) { 
+                    //ถ้ายังไม่มีชื่อเดิม ต้องบังคับกรอก
+                    startButton.setEnabled(!nameField.getText().trim().isEmpty());
+                }
             }
         });
 
