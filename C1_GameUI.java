@@ -172,20 +172,26 @@ public class C1_GameUI extends JFrame {
         // Wall collisions
         if (ballX <= 0 || ballX >= getWidth() - 20) ballDX = -ballDX;
         if (ballY <= 0) ballDY = -ballDY;
-        
-        // Paddle collision
-        if (ballY >= getHeight() - 95 && ballY <= getHeight() - 80 &&
-            ballX >= paddleX && ballX <= paddleX + 100) {
-            ballDY = -ballDY;
-            // Add some angle variation based on where ball hits paddle
-            int hitPosition = ballX - (paddleX + 50);
-            ballDX += hitPosition / 20;
+    
+        // Paddle collision 
+        Rectangle ballRect = new Rectangle(ballX, ballY, 20, 20);
+        Rectangle paddleRect = new Rectangle(paddleX, getHeight() - 80, 100, 15);
+    
+        if (ballRect.intersects(paddleRect)) {
+            int paddleCenter = paddleX + 50;
+            int ballCenter = ballX + 10;
+            int offset = ballCenter - paddleCenter;
+    
+            ballDY = -Math.abs(ballDY);
+    
+            // เพิ่มความเอียงตามตำแหน่งชน
+            ballDX = ballDX + offset / 20;
         }
-        
+    
         // Block collisions
         for (int i = 0; i < blocks.size(); i++) {
             Block block = blocks.get(i);
-            if (new Rectangle(ballX, ballY, 20, 20).intersects(block.getBounds())) {
+            if (ballRect.intersects(block.getBounds())) {
                 blocks.remove(i);
                 score += 10;
                 scoreLabel.setText("Score: " + score);
@@ -193,12 +199,12 @@ public class C1_GameUI extends JFrame {
                 break;
             }
         }
-        
-        // Bottom collision (ball fell)
-        if (ballY >= getHeight()) {
+    
+        // Bottom collision (ball fell below paddle)
+        if (ballY > getHeight() - 65) {
             loseLife();
         }
-    }
+    }    
 
     private void loseLife() {
         lives--;
@@ -259,14 +265,16 @@ public class C1_GameUI extends JFrame {
             null,
             new Object[]{"Play Again", "Home"},
             null);
-        
+    
         if (choice == JOptionPane.YES_OPTION) {
             initializeGame();
+            lives = 3;
+            livesLabel.setText("Lives: " + lives);
             gameTimer.start();
         } else {
             returnToHome();
         }
-    }
+    }    
 
     private void returnToHome() {
         dispose();
