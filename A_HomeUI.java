@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-
+//hi
 public class A_HomeUI extends JFrame {
 
     private JTextField nameField;
