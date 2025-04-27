@@ -32,17 +32,18 @@ public class WaitingRoom extends JFrame {
         playerList = new JList<>(playerListModel);
         add(new JScrollPane(playerList), BorderLayout.CENTER);
     
+        playerListModel.addElement(playerName + (isHost ? " (Host)" : ""));
+        
         if (isHost) {
-            playerListModel.addElement(playerName + " (Host)");  // ใส่ชื่อ host จริงๆ
             server.setPlayerListModel(playerListModel);
         } else {
-            playerListModel.addElement(playerName);  // ใส่ชื่อ player จริงๆ
             client.setPlayerListModel(playerListModel);
         }
     
         JLabel infoLabel = new JLabel("Waiting for players...", SwingConstants.CENTER);
         add(infoLabel, BorderLayout.NORTH);
     }
+    
     
     public void updatePlayerList(List<String> players) {
         playerListModel.clear();
