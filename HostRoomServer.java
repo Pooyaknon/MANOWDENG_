@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -59,4 +60,18 @@ public class HostRoomServer {
             e.printStackTrace();
         }
     }
+
+    public void broadcastStartGame() {
+        try {
+            for (ObjectOutputStream out : clientOutputStreams) {
+                out.writeObject("START_GAME");
+                out.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 }
+
+

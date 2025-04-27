@@ -45,6 +45,7 @@ public class WaitingRoom extends JFrame {
         if (isHost) {
             startButton = new JButton("Start Game");
             startButton.addActionListener(e -> {
+                server.broadcastStartGame(); // ส่งสัญญาณให้ทุก client เริ่มเกม
                 dispose();
                 new C2_MultiplayerGameUI(false);
             });

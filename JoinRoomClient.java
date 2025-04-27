@@ -1,8 +1,11 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
 
 public class JoinRoomClient {
     private Socket socket;
@@ -45,4 +48,25 @@ public class JoinRoomClient {
             }
         }
     }
+
+        // ฟัง server อยู่ตลอด
+    public void listenToServer(WaitingRoom waitingRoom) {
+        new Thread(() -> {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if (line.equals("START_GAME")) {
+                        SwingUtilities.invokeLater(() -> {
+                            waitingRoom.dispose();
+                            new C2_MultiplayerGameUI(false); // เริ่มเกมฝั่ง client
+                        });
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
 }
