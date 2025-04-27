@@ -44,4 +44,11 @@ public class WaitingRoom extends JFrame {
         add(infoLabel, BorderLayout.NORTH);
     }
     
+    public void updatePlayerList(List<String> players) {
+        playerListModel.clear();
+        for (String player : players) {
+            playerListModel.addElement(player);
+        }
+    }
+    
 }
