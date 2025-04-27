@@ -59,6 +59,7 @@ public class D_MultiplayerLobbyUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Failed to create room", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     private void joinRoom() {
         String code = roomCodeField.getText().trim();
