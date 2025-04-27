@@ -6,12 +6,8 @@ public class JoinRoomClient {
     private Socket socket;
     private DefaultListModel<String> playerListModel;
 
-    public JoinRoomClient(String roomCode) throws IOException {
-        String ip = "127.0.0.1"; // ตอนนี้ fix เป็น localhost ก่อน (เพราะ room code ยังไม่ผูก IP จริง)
-        int port = 5000;          // fix port ไว้ด้วย ตอน dev (อนาคตค่อย upgrade ให้ map ได้)
-
-        socket = new Socket(ip, port);
-        System.out.println("Connected to server with room code: " + roomCode);
+    public JoinRoomClient(String host, int port) throws IOException {
+        socket = new Socket(host, port);
     }
 
     public void setPlayerListModel(DefaultListModel<String> model) {

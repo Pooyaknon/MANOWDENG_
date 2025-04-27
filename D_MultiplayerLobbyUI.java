@@ -66,14 +66,14 @@ public class D_MultiplayerLobbyUI extends JFrame {
             int port = 5000 + (int)(Math.random() * 1000);
             HostRoomServer server = new HostRoomServer(port);
             server.startAcceptingPlayers();
-
-            String roomCode = RoomCodeUtil.generateRoomCode(); // << ไม่มี port แล้ว
-
+    
+            String roomCode = RoomCodeUtil.generateRoomCode(port); // ส่ง port เข้าไป
+    
             JOptionPane.showMessageDialog(this,
                 "Room Created!\nRoom Code: " + roomCode,
                 "Room Created",
                 JOptionPane.INFORMATION_MESSAGE);
-
+    
             new WaitingRoom(true, server, null, A_HomeUI.playerName);
             dispose();
         } catch (IOException e) {
@@ -81,6 +81,7 @@ public class D_MultiplayerLobbyUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Failed to create room", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     private void joinRoom() {
         String code = roomCodeField.getText().trim();
@@ -88,10 +89,13 @@ public class D_MultiplayerLobbyUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Please enter room code", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+    
         try {
-            // ไม่ต้อง parse อะไรแล้ว เอา code ตรงๆ เลย
-            JoinRoomClient client = new JoinRoomClient(code); // << ส่ง code เข้าไปตรงๆ
+            String[] parts = RoomCodeUtil.parseRoomCode(code);
+            String ip = parts[0];
+            int port = Integer.parseInt(parts[1]);
+    
+            JoinRoomClient client = new JoinRoomClient(ip, port);
             new WaitingRoom(false, null, client, A_HomeUI.playerName);
             dispose();
         } catch (Exception e) {
@@ -99,4 +103,5 @@ public class D_MultiplayerLobbyUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Failed to join room", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 }
