@@ -17,71 +17,50 @@ public class D_MultiplayerLobbyUI extends JFrame {
     }
 
     private void setupUI() {
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // ขอบเว้นรอบๆ
+        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
 
-        JLabel titleLabel = new JLabel("Multiplayer Lobby", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JLabel roomCodeLabel = new JLabel("Enter Room Code:");
-        roomCodeLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        centerPanel.add(roomCodeLabel, gbc);
+        JLabel instructionLabel = new JLabel("Enter Room Code:");
+        instructionLabel.setHorizontalAlignment(JLabel.CENTER);
 
         roomCodeField = new JTextField();
-        roomCodeField.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        centerPanel.add(roomCodeField, gbc);
-
-        joinRoomButton = new JButton("Join Room");
-        joinRoomButton.setFont(new Font("Arial", Font.BOLD, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        centerPanel.add(joinRoomButton, gbc);
-
         createRoomButton = new JButton("Create Room");
-        createRoomButton.setFont(new Font("Arial", Font.BOLD, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        centerPanel.add(createRoomButton, gbc);
+        joinRoomButton = new JButton("Join Room");
 
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        add(mainPanel);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.add(instructionLabel);
+        panel.add(roomCodeField);
+        panel.add(joinRoomButton);
+        panel.add(createRoomButton);
 
-        // Event
+        add(panel);
+
+        // กดปุ่มแล้วทำงาน
         createRoomButton.addActionListener(e -> createRoom());
         joinRoomButton.addActionListener(e -> joinRoom());
     }
 
     private void createRoom() {
         try {
-            int port = 5000 + (int)(Math.random() * 1000);
+            int port = 5000 + (int)(Math.random() * 1000); // random port 5000-5999
             HostRoomServer server = new HostRoomServer(port);
-            server.startAcceptingPlayers();
-    
-            String roomCode = RoomCodeUtil.generateRoomCode(port); // ส่ง port เข้าไป
-    
-            JOptionPane.showMessageDialog(this,
+            server.startAcceptingPlayers();  // เริ่มรอคนเข้า
+
+            String roomCode = RoomCodeUtil.generateRoomCode(port); // สร้าง room code
+
+            JOptionPane.showMessageDialog(this, 
                 "Room Created!\nRoom Code: " + roomCode,
                 "Room Created",
                 JOptionPane.INFORMATION_MESSAGE);
-    
-            new WaitingRoom(true, server, null, A_HomeUI.playerName);
+
+            // ไปหน้า waiting room
+            new WaitingRoom(true, server, null);
             dispose();
+
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Failed to create room", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 
     private void joinRoom() {
         String code = roomCodeField.getText().trim();
@@ -89,19 +68,21 @@ public class D_MultiplayerLobbyUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Please enter room code", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-    
+
         try {
             String[] parts = RoomCodeUtil.parseRoomCode(code);
             String ip = parts[0];
             int port = Integer.parseInt(parts[1]);
-    
+
             JoinRoomClient client = new JoinRoomClient(ip, port);
-            new WaitingRoom(false, null, client, A_HomeUI.playerName);
+
+            // ไปหน้า waiting room
+            new WaitingRoom(false, null, client);
             dispose();
+
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Failed to join room", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 }

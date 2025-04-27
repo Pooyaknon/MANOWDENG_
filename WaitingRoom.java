@@ -1,47 +1,69 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.List;
-import java.util.ArrayList;
 
 public class WaitingRoom extends JFrame {
     private boolean isHost;
     private HostRoomServer server;
     private JoinRoomClient client;
+    private JButton startButton;
 
-    private DefaultListModel<String> playerListModel;
-    private JList<String> playerList;
-
-    public WaitingRoom(boolean isHost, HostRoomServer server, JoinRoomClient client, String playerName) {
+    public WaitingRoom(boolean isHost, HostRoomServer server, JoinRoomClient client) {
         this.isHost = isHost;
         this.server = server;
         this.client = client;
-    
+
         setTitle("Waiting Room");
-        setSize(400, 300);
+        setSize(300, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setupUI(playerName); // ส่ง playerName ไป
+
+        setupUI();
+
+        if (!isHost) {
+            new Thread(this::waitForStart).start();
+        }
+        
         setVisible(true);
     }
-    
 
-    private void setupUI(String playerName) {
-        setLayout(new BorderLayout());
-    
-        playerListModel = new DefaultListModel<>();
-        playerList = new JList<>(playerListModel);
-        add(new JScrollPane(playerList), BorderLayout.CENTER);
-    
+    private void setupUI() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JLabel label = new JLabel(isHost ? "Waiting for players..." : "Waiting for host...", SwingConstants.CENTER);
+        panel.add(label, BorderLayout.CENTER);
+
         if (isHost) {
-            playerListModel.addElement(playerName + " (Host)");  // ใส่ชื่อ host จริงๆ
-            server.setPlayerListModel(playerListModel);
-        } else {
-            playerListModel.addElement(playerName);  // ใส่ชื่อ player จริงๆ
-            client.setPlayerListModel(playerListModel);
+            startButton = new JButton("Start Game");
+            panel.add(startButton, BorderLayout.SOUTH);
+
+            startButton.addActionListener(e -> {
+                server.sendStartSignal();
+                startGame();
+            });
         }
-    
-        JLabel infoLabel = new JLabel("Waiting for players...", SwingConstants.CENTER);
-        add(infoLabel, BorderLayout.NORTH);
+
+        add(panel);
     }
-    
+
+    private void waitForStart() {
+        try {
+            client.waitForStartSignal();
+            startGame();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startGame() {
+        SwingUtilities.invokeLater(() -> {
+            new C1_GameUI(false);
+            if (isHost && server != null) server.close();
+            if (!isHost && client != null) {
+                try { client.close(); } catch (IOException e) {}
+            }
+            dispose();
+        });
+    }
 }

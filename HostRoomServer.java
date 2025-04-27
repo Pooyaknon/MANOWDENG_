@@ -1,37 +1,51 @@
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import javax.swing.DefaultListModel;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class HostRoomServer {
     private ServerSocket serverSocket;
-    private DefaultListModel<String> playerListModel;
+    private List<Socket> players = Collections.synchronizedList(new ArrayList<>());
 
     public HostRoomServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
 
     public void startAcceptingPlayers() {
-        Thread acceptThread = new Thread(() -> {
+        new Thread(() -> {
             while (true) {
                 try {
-                    Socket clientSocket = serverSocket.accept();
-                    System.out.println("A player connected: " + clientSocket.getInetAddress());
-
-                    if (playerListModel != null) {
-                        String playerName = "Player " + (playerListModel.getSize()); 
-                        playerListModel.addElement(playerName);
-                    }
+                    Socket socket = serverSocket.accept();
+                    players.add(socket);
+                    System.out.println("Player joined: " + socket.getInetAddress());
                 } catch (IOException e) {
-                    e.printStackTrace();
                     break;
                 }
             }
-        });
-        acceptThread.start();
+        }).start();
     }
 
-    public void setPlayerListModel(DefaultListModel<String> model) {
-        this.playerListModel = model;
+    public List<Socket> getPlayers() {
+        return players;
+    }
+
+    public void sendStartSignal() {
+        synchronized (players) {
+            for (Socket s : players) {
+                try {
+                    PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+                    out.println("START_GAME");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void close() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

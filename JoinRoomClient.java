@@ -1,19 +1,25 @@
-import java.io.IOException;
-import java.net.Socket;
-import javax.swing.DefaultListModel;
+import java.io.*;
+import java.net.*;
 
 public class JoinRoomClient {
     private Socket socket;
-    private DefaultListModel<String> playerListModel;
+    private BufferedReader in;
 
-    public JoinRoomClient(String host, int port) throws IOException {
-        socket = new Socket(host, port);
+    public JoinRoomClient(String ip, int port) throws IOException {
+        socket = new Socket(ip, port);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public void setPlayerListModel(DefaultListModel<String> model) {
-        this.playerListModel = model;
-        if (model != null) {
-            model.addElement("You (Client)");
+    public void waitForStartSignal() throws IOException {
+        while (true) {
+            String message = in.readLine();
+            if ("START_GAME".equals(message)) {
+                break;
+            }
         }
+    }
+
+    public void close() throws IOException {
+        socket.close();
     }
 }
