@@ -30,12 +30,19 @@ public class D_MultiplayerLobbyUI extends JFrame {
 
     private void loadResources() {
         try {
-            backgroundImage = ImageIO.read(new File("zzz_brick_background.png"));
-            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("zz_Jersey10-Regular.ttf"));
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
+            // ใช้ ClassLoader โหลดไฟล์จากโฟลเดอร์ปัจจุบัน
+            backgroundImage = ImageIO.read(getClass().getResource("zzz_brick_background.png"));
+            pixelFont = Font.createFont(Font.TRUETYPE_FONT, 
+                getClass().getResourceAsStream("zz_Jersey10-Regular.ttf"));
         } catch (Exception e) {
             e.printStackTrace();
-            pixelFont = new Font("Arial", Font.BOLD, 32);
+            // Fallback
+            pixelFont = new Font("Arial", Font.BOLD, 60);
+            backgroundImage = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = backgroundImage.createGraphics();
+            g2d.setColor(Color.DARK_GRAY);
+            g2d.fillRect(0, 0, 800, 600);
+            g2d.dispose();
         }
     }
 
