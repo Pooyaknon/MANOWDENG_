@@ -1,6 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -11,47 +12,59 @@ public class ModeSelectUI extends JFrame {
 
     public ModeSelectUI() {
         setTitle("MANOWDENG - Select Mode");
-        setMinimumSize(new Dimension(600, 400));
+        setMinimumSize(new Dimension(800, 600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // โหลดภาพพื้นหลัง + ฟอนต์
+        loadResources();
+        setupUI();
+
+        setVisible(true);
+    }
+
+    private void loadResources() {
         try {
             backgroundImage = ImageIO.read(new File("brick_background.png"));
-            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("Jersey10-Regular.ttf")).deriveFont(32f);
+            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("Jersey10-Regular.ttf"));
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
         } catch (Exception e) {
             e.printStackTrace();
+            pixelFont = new Font("Arial", Font.BOLD, 32);
         }
+    }
 
-        // สร้าง content panel แบบ custom background
+    private void setupUI() {
         JPanel contentPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (backgroundImage != null) {
-                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    Graphics2D g2d = (Graphics2D)g;
+                    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+
+                    g2d.setColor(new Color(0, 0, 0, 150));
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
                 }
             }
         };
         contentPanel.setLayout(new BorderLayout(20, 20));
         setContentPane(contentPanel);
 
-        // ===== ส่วนบน - ป้ายชื่อผู้เล่น =====
         JLabel playerNameLabel = new JLabel("Welcome, " + HomeUI.playerName, SwingConstants.CENTER);
         playerNameLabel.setForeground(Color.WHITE);
-        playerNameLabel.setFont(pixelFont != null ? pixelFont.deriveFont(36f) : new Font("Segoe UI", Font.BOLD, 28));
+        playerNameLabel.setFont(pixelFont.deriveFont(36f));
         contentPanel.add(playerNameLabel, BorderLayout.NORTH);
 
-        // ===== ส่วนกลาง - ปุ่ม =====
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 0, 15, 0);
+        gbc.insets = new Insets(20, 0, 20, 0);
         gbc.gridx = 0;
 
-        JButton singlePlayerButton = createStyledButton("🎮 Single Player");
-        JButton multiplayerButton = createStyledButton("🌐 Multiplayer");
+        JButton singlePlayerButton = createModeButton("🎮 SINGLE PLAYER", new Color(50, 150, 250));
+        JButton multiplayerButton = createModeButton("🌐 MULTIPLAYER", new Color(250, 150, 50));
 
         gbc.gridy = 0;
         centerPanel.add(singlePlayerButton, gbc);
@@ -60,44 +73,64 @@ public class ModeSelectUI extends JFrame {
 
         contentPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // ===== ส่วนล่าง - ปุ่ม Home =====
-        JButton homeButton = createStyledButton("🏠 Home");
+        JButton homeButton = createStyledButton("🏠 HOME", 24f, new Color(100, 100, 100));
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.setOpaque(false);
         bottomPanel.add(homeButton);
         contentPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        // ===== Event =====
+        setupEventListeners(singlePlayerButton, multiplayerButton, homeButton);
+    }
+
+    private JButton createModeButton(String text, Color bgColor) {
+        JButton button = new JButton(text);
+        button.setFont(pixelFont.deriveFont(28f));
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.WHITE, 3, true),
+            BorderFactory.createEmptyBorder(10, 40, 10, 40)
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    private JButton createStyledButton(String text, float fontSize, Color bgColor) {
+        JButton button = new JButton(text);
+        button.setFont(pixelFont.deriveFont(fontSize));
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.WHITE, 2, true),
+            BorderFactory.createEmptyBorder(5, 20, 5, 20)
+        ));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    private void setupEventListeners(JButton singlePlayerButton, JButton multiplayerButton, JButton homeButton) {
         singlePlayerButton.addActionListener(e -> {
             dispose();
             new SinglePlayerUI();
         });
-
+        
         multiplayerButton.addActionListener(e -> {
             dispose();
             new MultiplayerLobbyUI();
         });
-
+        
         homeButton.addActionListener(e -> {
             dispose();
             new HomeUI();
         });
-
-        setVisible(true);
-    }
-
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBackground(new Color(255, 255, 255, 180)); // โปร่งใสนิดๆ
-        button.setForeground(Color.BLACK);
-        button.setFont(pixelFont != null ? pixelFont.deriveFont(20f) : new Font("Segoe UI", Font.PLAIN, 20));
-        button.setPreferredSize(new Dimension(260, 50));
-        return button;
     }
 
     public static void main(String[] args) {
-        HomeUI.playerName = "Player1";
-        SwingUtilities.invokeLater(ModeSelectUI::new);
+        SwingUtilities.invokeLater(() -> {
+            HomeUI.playerName = "Player1";
+            new ModeSelectUI();
+        });
     }
 }
