@@ -63,8 +63,8 @@ public class B_ModeSelectUI extends JFrame {
         gbc.insets = new Insets(20, 0, 20, 0);
         gbc.gridx = 0;
 
-        JButton singlePlayerButton = createModeButton("🎮 SINGLE PLAYER", new Color(50, 150, 250));
-        JButton multiplayerButton = createModeButton("🌐 MULTIPLAYER", new Color(250, 150, 50));
+        JButton singlePlayerButton = createModeButton("SINGLE PLAYER", new Color(50, 150, 250));
+        JButton multiplayerButton = createModeButton("MULTIPLAYER", new Color(250, 150, 50));
 
         gbc.gridy = 0;
         centerPanel.add(singlePlayerButton, gbc);
@@ -73,7 +73,7 @@ public class B_ModeSelectUI extends JFrame {
 
         contentPanel.add(centerPanel, BorderLayout.CENTER);
 
-        JButton homeButton = createStyledButton("🏠 HOME", 24f, new Color(100, 100, 100));
+        JButton homeButton = createStyledButton("HOME", 24f, new Color(100, 100, 100));
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.setOpaque(false);
         bottomPanel.add(homeButton);
