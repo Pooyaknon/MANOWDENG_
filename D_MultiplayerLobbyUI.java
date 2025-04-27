@@ -43,7 +43,6 @@ public class D_MultiplayerLobbyUI extends JFrame {
         try {
             int port = 5000 + (int)(Math.random() * 1000); // random port 5000-5999
             HostRoomServer server = new HostRoomServer(port);
-            server.startAcceptingPlayers();  // เริ่มรอคนเข้า
 
             String roomCode = RoomCodeUtil.generateRoomCode(port); // สร้าง room code
 
