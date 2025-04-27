@@ -1,16 +1,23 @@
-import java.util.Random;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class RoomCodeUtil {
+    public static String generateRoomCode(int port) throws UnknownHostException {
+        InetAddress localhost = InetAddress.getLocalHost();
+        String ip = localhost.getHostAddress(); // เอา IP จริง
+        return ip + ":" + port;
+    }
 
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final int ROOM_CODE_LENGTH = 10;
-    private static Random random = new Random();
+    public static String[] parseRoomCode(String code) {
+        return code.split(":");
+    }
 
-    public static String generateRoomCode() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < ROOM_CODE_LENGTH; i++) {
-            sb.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+    public static String getLocalIpAddress() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return "127.0.0.1"; // fallback ถ้า error
         }
-        return sb.toString();
     }
 }
