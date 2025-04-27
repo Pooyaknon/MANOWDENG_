@@ -7,3 +7,6 @@ run only HomeUI and VoiceServer.java
 รัน 
 javac *.java
 java A_HomeUI
+
+
+noon
