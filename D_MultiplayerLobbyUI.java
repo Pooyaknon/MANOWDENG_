@@ -26,7 +26,7 @@ public class D_MultiplayerLobbyUI extends JFrame {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // ระยะห่างระหว่างคอมโพเนนต์
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel roomCodeLabel = new JLabel("Enter Room Code:");
@@ -67,14 +67,14 @@ public class D_MultiplayerLobbyUI extends JFrame {
             HostRoomServer server = new HostRoomServer(port);
             server.startAcceptingPlayers();
 
-            String roomCode = RoomCodeUtil.generateRoomCode(port);
+            String roomCode = RoomCodeUtil.generateRoomCode(); // << ไม่มี port แล้ว
 
             JOptionPane.showMessageDialog(this,
-                "Room Created!\nIP: " + RoomCodeUtil.getLocalIpAddress() + "\nRoom Code: " + roomCode,
+                "Room Created!\nRoom Code: " + roomCode,
                 "Room Created",
                 JOptionPane.INFORMATION_MESSAGE);
 
-            new WaitingRoom(true, server, null);
+            new WaitingRoom(true, server, null, A_HomeUI.playerName);
             dispose();
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,12 +90,9 @@ public class D_MultiplayerLobbyUI extends JFrame {
         }
 
         try {
-            String[] parts = RoomCodeUtil.parseRoomCode(code);
-            String ip = parts[0];
-            int port = Integer.parseInt(parts[1]);
-
-            JoinRoomClient client = new JoinRoomClient(ip, port);
-            new WaitingRoom(false, null, client);
+            // ไม่ต้อง parse อะไรแล้ว เอา code ตรงๆ เลย
+            JoinRoomClient client = new JoinRoomClient(code); // << ส่ง code เข้าไปตรงๆ
+            new WaitingRoom(false, null, client, A_HomeUI.playerName);
             dispose();
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,37 +11,37 @@ public class WaitingRoom extends JFrame {
     private DefaultListModel<String> playerListModel;
     private JList<String> playerList;
 
-    public WaitingRoom(boolean isHost, HostRoomServer server, JoinRoomClient client) {
+    public WaitingRoom(boolean isHost, HostRoomServer server, JoinRoomClient client, String playerName) {
         this.isHost = isHost;
         this.server = server;
         this.client = client;
-
+    
         setTitle("Waiting Room");
         setSize(400, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setupUI();
+        setupUI(playerName); // ส่ง playerName ไป
         setVisible(true);
     }
+    
 
-    private void setupUI() {
+    private void setupUI(String playerName) {
         setLayout(new BorderLayout());
-
+    
         playerListModel = new DefaultListModel<>();
         playerList = new JList<>(playerListModel);
         add(new JScrollPane(playerList), BorderLayout.CENTER);
-
+    
         if (isHost) {
-            playerListModel.addElement("Host (You)");
-            // สมมติให้ Host มีชื่อ "Host"
+            playerListModel.addElement(playerName + " (Host)");  // ใส่ชื่อ host จริงๆ
             server.setPlayerListModel(playerListModel);
         } else {
-            playerListModel.addElement("You");
-            // สมมติให้ Client มีชื่อ "Client"
+            playerListModel.addElement(playerName);  // ใส่ชื่อ player จริงๆ
             client.setPlayerListModel(playerListModel);
         }
-
+    
         JLabel infoLabel = new JLabel("Waiting for players...", SwingConstants.CENTER);
         add(infoLabel, BorderLayout.NORTH);
     }
+    
 }

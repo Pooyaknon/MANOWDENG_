@@ -4,4 +4,6 @@ run only HomeUI and VoiceServer.java
 
 ลบไฟล์   del /s *.class
 
-รู้บี้จัง
+รัน 
+javac *.java
+java A_HomeUI
