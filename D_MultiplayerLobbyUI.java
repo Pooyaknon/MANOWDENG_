@@ -30,8 +30,8 @@ public class D_MultiplayerLobbyUI extends JFrame {
 
     private void loadResources() {
         try {
-            backgroundImage = ImageIO.read(new File("brick_background.png"));
-            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("Jersey10-Regular.ttf"));
+            backgroundImage = ImageIO.read(new File("zzz_brick_background.png"));
+            pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("zz_Jersey10-Regular.ttf"));
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
         } catch (Exception e) {
             e.printStackTrace();
