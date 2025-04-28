@@ -1,55 +1,54 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
+import java.awt.event.*;
+import java.util.Map;
 
 public class ScoreBoardDialog extends JDialog {
+    private C2_MultiplayerGameUI parent; // <<< เปลี่ยน type ให้เป็น C2_MultiplayerGameUI
 
-    public ScoreBoardDialog(JFrame parent) {
+    public ScoreBoardDialog(C2_MultiplayerGameUI parent, Map<String, Integer> scores) {
         super(parent, "Scoreboard", true);
+        this.parent = parent;
         setSize(400, 300);
         setLocationRelativeTo(parent);
 
-        // Example data for the scoreboard (you can replace this with actual data from the server)
-        List<String> scores = getScoreboardData();
-
-        // Panel to display the scoreboard
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        // Add header label
         JLabel headerLabel = new JLabel("Scoreboard");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 20));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(headerLabel);
 
-        // Add scores
-        for (String score : scores) {
-            JLabel scoreLabel = new JLabel(score);
+        for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+            JLabel scoreLabel = new JLabel(entry.getKey() + ": " + entry.getValue());
             scoreLabel.setFont(new Font("Arial", Font.PLAIN, 16));
             scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             panel.add(scoreLabel);
         }
 
-        // Close button
         JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> dispose());
+        closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        closeButton.addActionListener(e -> closeAllAndReturnHome());
+        panel.add(Box.createVerticalStrut(10));
         panel.add(closeButton);
 
-        // Add the panel to the dialog
         add(panel);
 
-        // Make the dialog visible
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeAllAndReturnHome();
+            }
+        });
+
         setVisible(true);
     }
 
-    private List<String> getScoreboardData() {
-        // Example scores, you can replace this with actual data fetching logic
-        return List.of(
-                "Player1: 1000",
-                "Player2: 850",
-                "Player3: 720",
-                "Player4: 650"
-        );
+    private void closeAllAndReturnHome() {
+        if (parent != null) {
+            parent.returnToHome(); // <<< ให้ parent กลับ home เอง
+        }
+        dispose(); // ปิดตัว ScoreboardDialog ตัวเอง
     }
-
 }

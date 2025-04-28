@@ -1,16 +1,18 @@
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultListModel;
 
 public class HostRoomServer {
     private ServerSocket serverSocket;
     private DefaultListModel<String> playerListModel;
     private List<ObjectOutputStream> clientOutputStreams = new ArrayList<>();
+    private Map<String, Integer> playerScores = new HashMap<>(); // << เพิ่มตรงนี้
 
     public HostRoomServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -27,8 +29,9 @@ public class HostRoomServer {
                     clientOutputStreams.add(out);
 
                     if (playerListModel != null) {
-                        String playerName = "Player " + playerListModel.getSize();
+                        String playerName = "Player " + (playerListModel.getSize() + 1);
                         playerListModel.addElement(playerName);
+                        playerScores.put(playerName, 0); // ให้เริ่ม 0 คะแนน
 
                         broadcastPlayerList();
                     }
@@ -71,7 +74,21 @@ public class HostRoomServer {
             e.printStackTrace();
         }
     }
-    
+
+    // <<< เพิ่มฟังก์ชันส่งคะแนน
+    public void broadcastScores() {
+        try {
+            for (ObjectOutputStream out : clientOutputStreams) {
+                out.writeObject(playerScores);
+                out.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // <<< ไว้เปลี่ยนคะแนนผู้เล่น
+    public void updatePlayerScore(String playerName, int newScore) {
+        playerScores.put(playerName, newScore);
+    }
 }
-
-

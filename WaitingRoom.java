@@ -9,7 +9,7 @@ public class WaitingRoom extends JFrame {
 
     private DefaultListModel<String> playerListModel;
     private JList<String> playerList;
-    private JButton startButton; // <<<< เพิ่มตรงนี้
+    private JButton startButton; // ปุ่ม Start สำหรับ Host
 
     public WaitingRoom(boolean isHost, HostRoomServer server, JoinRoomClient client, String playerName) {
         this.isHost = isHost;
@@ -17,7 +17,7 @@ public class WaitingRoom extends JFrame {
         this.client = client;
     
         setTitle("Waiting Room");
-        setSize(400, 400); // เพิ่มสูงนิดนึง
+        setSize(400, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setupUI(playerName);
@@ -36,18 +36,18 @@ public class WaitingRoom extends JFrame {
         } else {
             playerListModel.addElement(playerName);
             client.setPlayerListModel(playerListModel);
+            client.setWaitingRoom(this); // <<< สำคัญมาก! ต้องมี
         }
     
         JLabel infoLabel = new JLabel("Waiting for players...", SwingConstants.CENTER);
         add(infoLabel, BorderLayout.NORTH);
     
-        // ส่วนปุ่ม Start Game
         if (isHost) {
             startButton = new JButton("Start Game");
             startButton.addActionListener(e -> {
                 server.broadcastStartGame(); // ส่งสัญญาณให้ทุก client เริ่มเกม
                 dispose();
-                new C2_MultiplayerGameUI(false);
+                new C2_MultiplayerGameUI(false); // เริ่มเกมฝั่ง host เอง
             });
             JPanel bottomPanel = new JPanel();
             bottomPanel.add(startButton);
@@ -55,7 +55,6 @@ public class WaitingRoom extends JFrame {
         }
     }
     
-
     public void updatePlayerList(List<String> players) {
         playerListModel.clear();
         for (String player : players) {

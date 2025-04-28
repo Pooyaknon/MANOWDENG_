@@ -19,6 +19,7 @@ public class C2_MultiplayerGameUI extends JFrame {
     private Random random = new Random();
     private JButton pauseButton, homeButton, resumeButton, soundButton, scoreBoardButton;
     private JPanel buttonPanel;
+    private ScoreBoardDialog scoreBoardDialog;
     private boolean isSoundOn = true; // For toggling sound
 
     public C2_MultiplayerGameUI(boolean isSinglePlayer) {
@@ -122,15 +123,10 @@ public class C2_MultiplayerGameUI extends JFrame {
         soundButton.setFocusable(false);
         soundButton.addActionListener(e -> toggleSound());
 
-        scoreBoardButton = new JButton("Scoreboard");
-        scoreBoardButton.setFocusable(false);
-        scoreBoardButton.addActionListener(e -> showScoreboard());
-
         buttonPanel.add(pauseButton);
         buttonPanel.add(homeButton);
         buttonPanel.add(resumeButton);
         buttonPanel.add(soundButton);
-        buttonPanel.add(scoreBoardButton);
 
         gamePanel.add(infoPanel, BorderLayout.NORTH);
         gamePanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -261,27 +257,39 @@ public class C2_MultiplayerGameUI extends JFrame {
 
     private void gameOver() {
         gameTimer.stop();
+        Object[] options = {"Play Again", "Home", "Scoreboard"};
         int choice = JOptionPane.showOptionDialog(this,
-            "Game Over! Your score: " + score,
-            "Game Over",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.INFORMATION_MESSAGE,
-            null,
-            new Object[]{"Play Again", "Home"},
-            null);
-        
+                "Game Over! Your score: " + score,
+                "Game Over",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]);
+    
         if (choice == JOptionPane.YES_OPTION) {
             initializeGame();
             gameTimer.start();
+        } else if (choice == JOptionPane.NO_OPTION) {
+            returnToHome();
+        } else if (choice == JOptionPane.CANCEL_OPTION) {
+            showScoreboard();
         } else {
+            // ถ้ากดปิดหน้าต่าง Game Over ก็กลับหน้าแรกเลย
             returnToHome();
         }
     }
+    
 
-    private void returnToHome() {
+    public void returnToHome() {
+        if (scoreBoardDialog != null && scoreBoardDialog.isVisible()) {
+            scoreBoardDialog.dispose();
+        }
         dispose();
         new A_HomeUI();
     }
+    
+    
 
     private void toggleSound() {
         isSoundOn = !isSoundOn;
@@ -290,10 +298,16 @@ public class C2_MultiplayerGameUI extends JFrame {
     }
 
     private void showScoreboard() {
-        // Display scoreboard or open new window to show scores
-        ScoreBoardDialog scoreBoardDialog = new ScoreBoardDialog(this);
-        scoreBoardDialog.setVisible(true);
+        java.util.Map<String, Integer> scoreData = new java.util.HashMap<>();
+        scoreData.put(A_HomeUI.playerName, score);
+    
+        scoreBoardDialog = new ScoreBoardDialog(this, scoreData);
     }
+    
+    
+    
+    
+    
 
     class Block {
         private int x, y, width, height;
