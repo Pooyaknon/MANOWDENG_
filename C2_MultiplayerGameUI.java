@@ -1,13 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
 
 public class C2_MultiplayerGameUI extends JFrame {
-
     private boolean isSinglePlayer;
     private JPanel gamePanel;
     private JLabel scoreLabel, livesLabel, playerNameLabel;
@@ -23,15 +21,10 @@ public class C2_MultiplayerGameUI extends JFrame {
     private JPanel buttonPanel;
     private ScoreBoardDialog scoreBoardDialog;
     private boolean isSoundOn = true; // For toggling sound
-    private List<String> players;
-    private ObjectOutputStream outputStream;
-    private String playerName;
 
-    public C2_MultiplayerGameUI(boolean isSinglePlayer, List<String> players, ObjectOutputStream out) {
+    public C2_MultiplayerGameUI(boolean isSinglePlayer) {
         this.isSinglePlayer = isSinglePlayer;
-        this.players = players;
-        this.outputStream = out;
-        this.playerName = A_HomeUI.playerName;
+    
         setTitle("MANOWDENG - " + (isSinglePlayer ? "Single Player" : "Multiplayer"));
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,12 +33,7 @@ public class C2_MultiplayerGameUI extends JFrame {
         initializeGame();
         setupUI();
         startGame();
-    
         setVisible(true);
-    }
-
-    public C2_MultiplayerGameUI(boolean isSinglePlayer) {
-        this(isSinglePlayer, new ArrayList<>(), null);
     }
 
     private void initializeGame() {
@@ -270,18 +258,6 @@ public class C2_MultiplayerGameUI extends JFrame {
     private void gameOver() {
         gameTimer.stop();
         
-        if (!isSinglePlayer) {
-            // Multiplayer: ส่งคะแนนไปหา Host
-            try {
-                java.util.Map<String, Integer> myScore = new java.util.HashMap<>();
-                myScore.put(playerName, score);
-                outputStream.writeObject(myScore);
-                outputStream.flush();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    
         Object[] options = {"Play Again", "Home", "Scoreboard"};
         int choice = JOptionPane.showOptionDialog(this,
                 "Game Over! Your score: " + score,

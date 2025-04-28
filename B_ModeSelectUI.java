@@ -124,8 +124,7 @@ public class B_ModeSelectUI extends JFrame {
         
         multiplayerButton.addActionListener(e -> {
             dispose();
-            new D_MultiplayerLobbyUI(A_HomeUI.playerName);
-
+            new D_MultiplayerLobbyUI();
         });
         
         homeButton.addActionListener(e -> {

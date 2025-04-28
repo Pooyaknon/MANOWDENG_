@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,8 +13,6 @@ public class HostRoomServer {
     private DefaultListModel<String> playerListModel;
     private List<ObjectOutputStream> clientOutputStreams = new ArrayList<>();
     private Map<String, Integer> playerScores = new HashMap<>();
-    private List<String> playerNames = new ArrayList<>();
-
     public HostRoomServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
     }
@@ -30,18 +27,15 @@ public class HostRoomServer {
                     ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                     clientOutputStreams.add(out);
 
-                    ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-                    String playerName = (String) in.readObject(); // อ่านชื่อจริงจาก client
-
-                    playerNames.add(playerName);
-                    playerScores.put(playerName, 0);
 
                     if (playerListModel != null) {
+                        String playerName = "Player " + (playerListModel.getSize() + 1);
                         playerListModel.addElement(playerName);
-                    }
+                        playerScores.put(playerName, 0); // ให้เริ่ม 0 คะแนน
 
-                    broadcastPlayerList();
-                } catch (Exception e) {
+                        broadcastPlayerList();
+                    }
+                } catch (IOException e) {
                     e.printStackTrace();
                     break;
                 }
@@ -56,8 +50,13 @@ public class HostRoomServer {
 
     private void broadcastPlayerList() {
         try {
+            List<String> players = new ArrayList<>();
+            for (int i = 0; i < playerListModel.size(); i++) {
+                players.add(playerListModel.getElementAt(i));
+            }
+
             for (ObjectOutputStream out : clientOutputStreams) {
-                out.writeObject(new ArrayList<>(playerNames));
+                out.writeObject(players);
                 out.flush();
             }
         } catch (IOException e) {
@@ -69,7 +68,6 @@ public class HostRoomServer {
         try {
             for (ObjectOutputStream out : clientOutputStreams) {
                 out.writeObject("START_GAME");
-                out.writeObject(new ArrayList<>(playerNames));
                 out.flush();
             }
         } catch (IOException e) {
@@ -77,6 +75,7 @@ public class HostRoomServer {
         }
     }
 
+     // <<< เพิ่มฟังก์ชันส่งคะแนน
     public void broadcastScores() {
         try {
             for (ObjectOutputStream out : clientOutputStreams) {

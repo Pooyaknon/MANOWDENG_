@@ -10,10 +10,8 @@ public class D_MultiplayerLobbyUI extends JFrame {
     private JButton createRoomButton, joinRoomButton;
     private BufferedImage backgroundImage;
     private Font pixelFont;
-    private String playerName;
 
-
-    public D_MultiplayerLobbyUI(String playerName) {
+    public D_MultiplayerLobbyUI() {
         setTitle("MANOWDENG - Multiplayer Lobby");
         setMinimumSize(new Dimension(800, 600));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -145,7 +143,7 @@ public class D_MultiplayerLobbyUI extends JFrame {
             String ip = parts[0];
             int port = Integer.parseInt(parts[1]);
     
-            JoinRoomClient client = new JoinRoomClient(ip, port, playerName);
+            JoinRoomClient client = new JoinRoomClient(ip, port);
             new WaitingRoom(false, null, client, A_HomeUI.playerName);
             dispose();
         } catch (Exception e) {
