@@ -1,68 +1,78 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
+
 import javax.swing.DefaultListModel;
 import javax.swing.SwingUtilities;
 
 public class JoinRoomClient {
     private Socket socket;
+    private ObjectOutputStream out;
     private ObjectInputStream in;
+    private WaitingRoom waitingRoom;
     private DefaultListModel<String> playerListModel;
-    private WaitingRoom waitingRoom; // <<< เพิ่มตัวแปรเก็บ WaitingRoom
 
-    public JoinRoomClient(String host, int port) throws IOException {
-        socket = new Socket(host, port);
-        in = new ObjectInputStream(socket.getInputStream());
-        listenForUpdates();
+    public JoinRoomClient(String host, int port, String playerName) {
+        try {
+            socket = new Socket(host, port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+
+            // ส่งชื่อผู้เล่นไปให้ Host
+            out.writeObject(playerName);
+            out.flush();
+
+            // เริ่มฟังรอข้อความจาก Host
+            new Thread(() -> listenForServerMessages()).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setPlayerListModel(DefaultListModel<String> model) {
         this.playerListModel = model;
     }
 
-    public void setWaitingRoom(WaitingRoom waitingRoom) {
-        this.waitingRoom = waitingRoom;
-    }
+    private void listenForServerMessages() {
+        try {
+            while (true) {
+                Object obj = in.readObject();  // << ตรงนี้คือสิ่งที่คุณลืม "ประกาศ obj"
 
-    private void listenForUpdates() {
-        Thread listenThread = new Thread(() -> {
-            try {
-                while (true) {
-                    Object obj = in.readObject();
-                    if (obj instanceof List) {
-                        List<String> players = (List<String>) obj;
-                        updatePlayerList(players);
-                    } else if (obj instanceof String) {
-                        String command = (String) obj;
-                        if (command.equals("START_GAME")) {
-                            // ฝั่ง Client เริ่มเกม
-                            SwingUtilities.invokeLater(() -> {
-                                if (waitingRoom != null) {
-                                    waitingRoom.dispose();
-                                }
-                                new C2_MultiplayerGameUI(false); // เริ่มเกมแบบ Multiplayer
-                            });
+                if (obj instanceof List) {
+                    List<String> playersFromServer = (List<String>) obj;
+
+                    // อัปเดต playerListModel ให้ลิสต์ชื่อใหม่
+                    SwingUtilities.invokeLater(() -> {
+                        if (playerListModel != null) {
+                            playerListModel.clear();
+                            for (String player : playersFromServer) {
+                                playerListModel.addElement(player);
+                            }
                         }
+                    });
+                } else if (obj instanceof String) {
+                    String command = (String) obj;
+                    if (command.equals("START_GAME")) {
+                        @SuppressWarnings("unchecked")
+                        List<String> players = (List<String>) in.readObject();
+                        SwingUtilities.invokeLater(() -> {
+                            if (waitingRoom != null) {
+                                waitingRoom.dispose();
+                            }
+                            new C2_MultiplayerGameUI(false, players, out); // << เพิ่มส่ง out ไปด้วย
+                        });
+                        break;
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        });
-        listenThread.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void updatePlayerList(List<String> players) {
-        if (playerListModel != null) {
-            SwingUtilities.invokeLater(() -> {
-                playerListModel.clear();
-                for (String player : players) {
-                    playerListModel.addElement(player);
-                }
-            });
-        }
+    public void setWaitingRoom(WaitingRoom waitingRoom) {
+        this.waitingRoom = waitingRoom;
     }
 }
